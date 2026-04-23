@@ -104,3 +104,79 @@ Automating VPC setup (like what you did manually via CLI)
 Deploying infrastructure in CI/CD pipelines
 
 Managing production infrastructure safely
+
+### Below is a complete CloudFormation YAML template that matches what you built manually:
+
+1 VPC
+
+1 Internet Gateway
+
+2 Subnets (Public + Private)
+
+2 Route Tables
+
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Fixed VPC Setup Using Dynamic AZ
+
+## Resources:
+
+### VPC
+  MyVPC:
+
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+
+### Internet Gateway
+  InternetGateway:
+
+    Type: AWS::EC2::InternetGateway
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref MyVPC
+      InternetGatewayId: !Ref InternetGateway
+
+### Public Subnet 1
+  PublicSubnet1:
+
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      MapPublicIpOnLaunch: true
+
+### Public Subnet 2
+  PublicSubnet2:
+
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: !Select [1, !GetAZs ""]
+      MapPublicIpOnLaunch: true
+
+### Private Subnet 1
+  PrivateSubnet1:
+
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: 10.0.3.0/24
+      AvailabilityZone: !Select [0, !GetAZs ""]
+
+### Private Subnet 2
+  PrivateSubnet2:
+
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: 10.0.4.0/24
+      AvailabilityZone: !Select [1, !GetAZs ""]
+
+![preview](./stack.PNG)
+
